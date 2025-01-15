@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">TrendNow</string>
+
+    <string name="skip">Skip</string>
+    <string name="retry">Retry</string>
+    <string name="language">Language</string>
+    <string name="country">Country</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="allow_permission">Allow permission</string>
+
+    <!-- OnBoarding -->
+    <string name="onboarding_title">Enable Location for Local News</string>
+    <string name="onboarding_desc">%s uses your location to display local news relevant to your country and language. This ensures you stay updated with the latest updates around you.</string>
+
+    <!-- News -->
+    <string name="unable_to_load_news">Unable to load news</string>
+    <string name="unable_to_load_more_news">Unable to load more news</string>
+
+    <!-- Local News -->
+    <string name="local_news_info">You\'re seeing trending local news from</string>
+    <string name="local_news_settings">Local News Settings</string>
+    <string name="local_news_settings_info">Personalize your feed to show trending news from your location. Stay informed about what’s happening around you!</string>
+    <string name="local_news_language_title">Local News Language</string>
+    <string name="local_news_country_title">Local News Country</string>
+    <string name="local_news_language_changed">The language has been changed to match the new selected country</string>
+    <string name="local_news_language_info">The language options shown are based on the supported languages for the selected country.</string>
+</resources>

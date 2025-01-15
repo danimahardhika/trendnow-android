@@ -1,2 +1,2 @@
-# trendnow-android
-News aggregator app build using Jetpack Compose
+# trendnow
+News aggregator app built using Jetpack Compose with Bonai News API

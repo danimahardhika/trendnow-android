@@ -31,3 +31,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# rapidapi news api key
+app/src/main/java/com/trend/now/ApiKey.kt
