@@ -3,7 +3,6 @@ package com.trend.now.ui.feature.news
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trend.now.core.network.ApiResult
-import com.trend.now.core.ui.state.UiState
 import com.trend.now.data.model.NewsPreference
 import com.trend.now.data.repository.UserPrefRepository
 import com.trend.now.data.repository.NewsRepository
@@ -11,13 +10,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -34,52 +31,32 @@ class NewsViewModel @Inject constructor(
     private val _trendingNewsUiState = MutableStateFlow(NewsUiState(loading = true))
     val trendingNewsUiState: StateFlow<NewsUiState> = _trendingNewsUiState
 
-    // observe the selected topic flow in user pref repository from a datastore
-    val selectedTopic = userPrefRepository.selectedTopic
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            // use empty string as default value
-            initialValue = ""
-        )
-
-    // observe the local news ui state
-    // based on news language and country from datastore
-    val localNewsUiState: StateFlow<UiState<NewsPreference>> = combine(
-        userPrefRepository.newsLanguage,
-        userPrefRepository.newsCountry
-    ) { language, country ->
-        UiState.Success(NewsPreference(language = language, country = country))
-    }.distinctUntilChanged()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = UiState.Loading
-        )
-
     // use different variable for loadingMore
     // because we don't want to trigger recomposition in the screen
     private var loadingMore: Boolean = false
 
     init {
         viewModelScope.launch {
+            // observe the selected topic, country, and language in datastore
+            // because trending news depends on them
             combine(
-                selectedTopic,
-                localNewsUiState
-            ) { topic, uiState ->
-                Pair(topic, uiState)
-            }.filter { it.first.isNotBlank() && it.second !is UiState.Loading }
-                .distinctUntilChanged { old, new ->
-                    val oldSuccess = old.second as? UiState.Success
-                    val newSuccess = new.second as? UiState.Success
-                    // compare the old and new value
-                    // make sure the state flow does not trigger emits with the same value
-                    old.first != new.first && oldSuccess?.data != newSuccess?.data
-                }
-                .collect {
-                    // fetch trending news each time the selected topic or news preference changed
-                    fetchTrendingNews()
-                }
+                userPrefRepository.selectedTopic,
+                userPrefRepository.newsCountry,
+                userPrefRepository.newsLanguage
+            ) { topic, country, language ->
+                Pair(topic, NewsPreference(country = country, language = language))
+            }.filter {
+                it.first.isNotBlank()
+                    && it.second.language.isNotBlank()
+                    && it.second.country.isNotBlank()
+            }.distinctUntilChanged { old, new ->
+                // compare the old and new value
+                // make sure the state flow does not trigger emits with the same value
+                old.first != new.first && old.second != new.second
+            }.collect {
+                // fetch trending news each time the selected topic or news preference changed
+                fetchTrendingNews()
+            }
         }
     }
 
@@ -132,12 +109,11 @@ class NewsViewModel @Inject constructor(
             fetchTrendingNewsMutex.withLock {
                 trendingNewsJob = launch {
                     try {
-                        val language = userPrefRepository.newsLanguage.first()
-                        val country = userPrefRepository.newsCountry.first()
                         val result = newsRepository.fetchTrendingNews(
-                            topic = selectedTopic.value,
-                            language = language,
-                            country = country,
+                            // take the value directly from the datastore
+                            topic = userPrefRepository.selectedTopic.first(),
+                            language = userPrefRepository.newsLanguage.first(),
+                            country = userPrefRepository.newsCountry.first(),
                             page = if (loadingMore) {
                                 // set the page value only when loading more
                                 _trendingNewsUiState.value.page + 1

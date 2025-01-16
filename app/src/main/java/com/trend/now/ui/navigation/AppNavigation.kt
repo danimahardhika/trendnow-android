@@ -35,36 +35,36 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = if (mainUiState.showOnBoarding) {
-                AppRoute.onboarding
+                AppRoute.ONBOARDING
             } else {
-                AppRoute.news
+                AppRoute.NEWS
             },
             enterTransition = { slideInHorizontally(initialOffsetX = { screenWidthPx }) },
             exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
         ) {
-            composable(route = AppRoute.onboarding) {
+            composable(route = AppRoute.ONBOARDING) {
                 OnBoardingScreen(modifier = modifier)
             }
-            composable(route = AppRoute.news) {
+            composable(route = AppRoute.NEWS) {
                 NewsScreen(modifier = modifier, navController = navController)
             }
             composable(
-                route = AppRoute.localNewsSettings,
+                route = AppRoute.LOCAL_NEWS_SETTINGS,
             ) {
                 LocalNewsSettingsScreen(modifier = modifier, navController = navController)
             }
-            composable(route = AppRoute.countryList) {
+            composable(route = AppRoute.COUNTRY_LIST) {
                 LocaleListScreen(
-                    localeList = LocaleList.COUNTRY,
+                    localeList = LocaleList.Country,
                     modifier = modifier,
                     navController = navController,
                 )
             }
-            composable(route = AppRoute.languageList) {
+            composable(route = AppRoute.LANGUAGE_LIST) {
                 LocaleListScreen(
-                    localeList = LocaleList.LANGUAGE,
+                    localeList = LocaleList.Language,
                     modifier = modifier,
                     navController = navController,
                 )

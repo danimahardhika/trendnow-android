@@ -52,9 +52,9 @@ import com.trend.now.R
 import com.trend.now.core.util.isListAtTop
 import com.trend.now.ui.feature.news.component.NewsCard
 import com.trend.now.ui.feature.news.localnews.LocalNewsSection
+import com.trend.now.ui.feature.news.localnews.LocalNewsViewModel
 import com.trend.now.ui.feature.news.topic.TopicSection
 import com.trend.now.ui.feature.news.topic.TopicsViewModel
-import com.trend.now.ui.navigation.AppRoute
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -63,6 +63,12 @@ import kotlinx.coroutines.launch
 fun NewsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    // the same reason with topics viewmodel
+    localNewsViewModel: LocalNewsViewModel = hiltViewModel(),
+    // let the news screen manage the topics viewmodel creation
+    // so that the topics section using the same viewmodel instance
+    // when the topics section re-created from scrolling
+    // (from invisible to visible on the screen)
     topicsViewModel: TopicsViewModel = hiltViewModel(),
     newsViewModel: NewsViewModel = hiltViewModel()
 ) {
@@ -81,10 +87,6 @@ fun NewsScreen(
 
     // collect the trending news ui state state flow
     val trendingNewsUiState by newsViewModel.trendingNewsUiState.collectAsState()
-    // collect the selected topic state flow
-    val selectedTopic by newsViewModel.selectedTopic.collectAsState()
-    // collect the news preference state flow
-    val localNewsUiState by newsViewModel.localNewsUiState.collectAsState()
 
     LaunchedEffect(Unit) {
         snapshotFlow { newsListState.layoutInfo.visibleItemsInfo }
@@ -155,6 +157,7 @@ fun NewsScreen(
         PullToRefreshBox(
             isRefreshing = trendingNewsUiState.refreshing,
             onRefresh = {
+                // special case to fetch the topics again on pull to refresh
                 topicsViewModel.fetchTopics()
                 newsViewModel.onPullToRefresh()
             },
@@ -171,15 +174,13 @@ fun NewsScreen(
                             .fillParentMaxWidth()
                             .padding(horizontal = 16.dp)
                             .animateItem(),
-                        localNewsUiState = localNewsUiState
-                    ) {
-                        navController.navigate(route = AppRoute.localNewsSettings)
-                    }
+                        navController = navController,
+                        viewModel = localNewsViewModel
+                    )
                 }
                 item(key = "topics-section") {
                     TopicSection(
-                        modifier = Modifier.fillParentMaxWidth().animateContentSize(),
-                        selectedTopic = selectedTopic,
+                        modifier = Modifier.fillParentMaxWidth(),
                         viewModel = topicsViewModel
                     )
                 }

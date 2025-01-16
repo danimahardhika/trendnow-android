@@ -4,11 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trend.now.core.network.ApiResult
 import com.trend.now.data.model.Topic
-import com.trend.now.data.repository.UserPrefRepository
 import com.trend.now.data.repository.NewsRepository
+import com.trend.now.data.repository.UserPrefRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,17 +25,46 @@ class TopicsViewModel @Inject constructor(
     private val userPrefRepository: UserPrefRepository
 ) : ViewModel() {
 
-    // not using the ui state here
-    // to keep the topics data that has been loaded being displayed
-    // when fetch topics is running or fetch topics is failed
-    private val _topics = MutableStateFlow<List<Topic>>(listOf())
-    val topics: StateFlow<List<Topic>> = _topics
+    private val _uiState = MutableStateFlow(TopicsUiState())
+    val uiState: StateFlow<TopicsUiState> = _uiState
+
+    // observe the selected topic in datastore
+    private val selectedTopic = userPrefRepository.selectedTopic
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = ""
+        )
 
     private var loading: Boolean = false
 
     init {
-        // fetch the news topics when the viewmodel initialized
-        fetchTopics()
+        viewModelScope.launch {
+            // wait until we got the selected topic value
+            selectedTopic
+                .filter { it.isNotBlank() }
+                // observe only for only time, stop after got the first emit.
+                .take(1)
+                .collect {
+                    // fetch the news topics when the selected topic value is ready
+                    fetchTopics()
+                }
+        }
+
+        viewModelScope.launch {
+            // observe the selected topic in datastore
+            userPrefRepository.selectedTopic
+                .filter { it.isNotBlank() }
+                // skip the initial value because already handled above
+                .drop(1)
+                // skip when the value is identical
+                .distinctUntilChanged()
+                .collect { topic ->
+                    _uiState.update {
+                        _uiState.value.copy(selectedTopic = topic)
+                    }
+                }
+        }
     }
 
     /**
@@ -42,7 +78,12 @@ class TopicsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = newsRepository.fetchSupportedTopics()
             if (result is ApiResult.Success) {
-                _topics.value = result.data
+                _uiState.update {
+                    _uiState.value.copy(
+                        topics = result.data,
+                        selectedTopic = selectedTopic.value
+                    )
+                }
             }
             loading = false
         }
@@ -58,10 +99,10 @@ class TopicsViewModel @Inject constructor(
 
     /**
      * @param topicId The topic id from [Topic.id]
-     * @return The index of specific topic from [topics]
+     * @return The index of specific topic from [TopicsUiState.topics]
      */
     fun indexOfTopic(topicId: String): Int {
-        return _topics.value.indexOfFirst { it.id == topicId }
+        return _uiState.value.topics.indexOfFirst { it.id == topicId }
             .takeIf { it >= 0 } ?: 0
     }
 }

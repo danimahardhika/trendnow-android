@@ -38,7 +38,7 @@ import com.trend.now.data.model.Language
 import com.trend.now.data.model.NewsPreference
 import com.trend.now.ui.component.AppBar
 
-enum class LocaleList { COUNTRY, LANGUAGE }
+enum class LocaleList { Country, Language }
 
 @Composable
 fun LocaleListScreen(
@@ -61,7 +61,7 @@ fun LocaleListScreen(
     Scaffold(
         topBar = {
             AppBar(
-                title = if (localeList == LocaleList.LANGUAGE) {
+                title = if (localeList == LocaleList.Language) {
                     stringResource(R.string.local_news_language_title)
                 } else {
                     stringResource(R.string.local_news_country_title)
@@ -74,7 +74,7 @@ fun LocaleListScreen(
     ) { innerPadding ->
         when (val state = uiState) {
             is UiState.Success -> {
-                if (list == LocaleList.COUNTRY) {
+                if (list == LocaleList.Country) {
                     CountryList(
                         data = state.data.values.toList(),
                         newsPreference = newsPreference,
@@ -83,7 +83,7 @@ fun LocaleListScreen(
                         listState = listState,
                         modifier = modifier.padding(innerPadding)
                     )
-                } else if (list == LocaleList.LANGUAGE) {
+                } else if (list == LocaleList.Language) {
                     val country = state.data[newsPreference.country]
                     val languages = country?.languages
                     if (languages != null) {
