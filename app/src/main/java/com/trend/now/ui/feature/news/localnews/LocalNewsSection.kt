@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,25 +33,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.trend.now.R
 import com.trend.now.core.ui.state.UiState
 import com.trend.now.core.util.darken
-import com.trend.now.data.model.NewsPreference
+import com.trend.now.ui.navigation.AppRoute
 import java.util.Locale
 
 @Composable
 fun LocalNewsSection(
     modifier: Modifier = Modifier,
-    localNewsUiState: UiState<NewsPreference>,
-    onClickLocalNewsSettings: () -> Unit = {}
+    navController: NavHostController,
+    viewModel: LocalNewsViewModel
 ) {
-    if (localNewsUiState is UiState.Success) {
+    // collect local news ui state
+    val uiState by viewModel.uiState.collectAsState()
+
+    val state = uiState
+    if (state is UiState.Success) {
         val expanded = rememberSaveable { mutableStateOf(false) }
         val arrowRotation by animateFloatAsState(
             targetValue = if (expanded.value) 180f else 0f,
             label = "dropdown-arrow"
         )
-        val locale = Locale(localNewsUiState.data.language, localNewsUiState.data.country)
+        val locale = Locale(state.data.language, state.data.country)
 
         Column(
             modifier = modifier
@@ -131,7 +137,9 @@ fun LocalNewsSection(
                             )
                         }
                         IconButton(
-                            onClick = onClickLocalNewsSettings
+                            onClick = {
+                                navController.navigate(route = AppRoute.LOCAL_NEWS_SETTINGS)
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Settings,
@@ -144,6 +152,7 @@ fun LocalNewsSection(
             }
         }
     } else {
+        // workaround to mark this section as visible in LazyColumn when loading
         Spacer(modifier = Modifier.height(1.dp))
     }
 }

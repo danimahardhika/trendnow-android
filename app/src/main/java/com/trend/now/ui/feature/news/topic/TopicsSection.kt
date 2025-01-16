@@ -2,6 +2,7 @@ package com.trend.now.ui.feature.news.topic
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,26 +30,25 @@ import com.trend.now.data.model.Topic
 @Composable
 fun TopicSection(
     modifier: Modifier = Modifier,
-    selectedTopic: String,
     viewModel: TopicsViewModel,
     topicListState: LazyListState = rememberLazyListState()
 ) {
-    // collect the topics state flow
-    val topics by viewModel.topics.collectAsState()
+    // collect the topics ui state state flow
+    val uiState by viewModel.uiState.collectAsState()
 
     var firstTopicLoad by remember { mutableStateOf(true) }
 
-    LaunchedEffect(topics, topicListState) {
-        if (!firstTopicLoad || topics.isEmpty()) return@LaunchedEffect
+    LaunchedEffect(uiState.topics, topicListState) {
+        if (!firstTopicLoad || uiState.topics.isEmpty()) return@LaunchedEffect
 
-        val topicIndex = viewModel.indexOfTopic(selectedTopic)
+        val topicIndex = viewModel.indexOfTopic(uiState.selectedTopic)
         val firstVisibleIndex = topicListState.firstVisibleItemIndex
         val lastVisibleIndex = topicListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
         if (topicIndex < firstVisibleIndex || topicIndex > lastVisibleIndex) {
             // scroll topics list to the selected topic on first load if needed
             topicListState.animateScrollToItem(
-                viewModel.indexOfTopic(selectedTopic)
+                viewModel.indexOfTopic(uiState.selectedTopic)
             )
         }
         firstTopicLoad = false
@@ -59,8 +60,8 @@ fun TopicSection(
         modifier = modifier.animateContentSize(
             animationSpec = tween()
         ),
-        selectedTopic = selectedTopic,
-        topics = topics,
+        selectedTopic = uiState.selectedTopic,
+        topics = uiState.topics,
         topicListState = topicListState
     ) { topic ->
         viewModel.selectTopic(topic.id)
@@ -116,8 +117,8 @@ private fun TopicsRow(
 @Composable
 private fun TopicsRowPreview(modifier: Modifier = Modifier) {
     TopicsRow(
-        modifier = modifier,
-        selectedTopic = "g",
+        modifier = modifier.background(color = MaterialTheme.colorScheme.surface),
+        selectedTopic = "science",
         topics = listOf(
             Topic(id = "general", name = "General"),
             Topic(id = "business", name = "Business"),
