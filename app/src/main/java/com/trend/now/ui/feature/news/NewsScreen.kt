@@ -154,73 +154,63 @@ fun NewsScreen(
             }
         }
     ) { innerPadding ->
-        PullToRefreshBox(
-            isRefreshing = trendingNewsUiState.refreshing,
-            onRefresh = {
-                // special case to fetch the topics again on pull to refresh
-                topicsViewModel.fetchTopics()
-                newsViewModel.onPullToRefresh()
-            },
-            modifier = modifier.padding(innerPadding),
+        LazyColumn(
+            modifier = Modifier.padding(innerPadding).animateContentSize(),
+            contentPadding = PaddingValues(top = 0.dp, bottom = 16.dp),
+            state = newsListState,
         ) {
-            LazyColumn(
-                modifier = Modifier.animateContentSize(),
-                contentPadding = PaddingValues(top = 0.dp, bottom = 16.dp),
-                state = newsListState,
-            ) {
-                item(key = "local-news") {
-                    LocalNewsSection(
-                        modifier = Modifier
-                            .fillParentMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .animateItem(),
-                        navController = navController,
-                        viewModel = localNewsViewModel
-                    )
+            item(key = "local-news") {
+                LocalNewsSection(
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .animateItem(),
+                    navController = navController,
+                    viewModel = localNewsViewModel
+                )
+            }
+            item(key = "topics-section") {
+                TopicSection(
+                    modifier = Modifier.fillParentMaxWidth(),
+                    viewModel = topicsViewModel
+                )
+            }
+            if (trendingNewsUiState.loading) {
+                item(key = "loading") {
+                    Loading(modifier = Modifier.fillParentMaxSize())
                 }
-                item(key = "topics-section") {
-                    TopicSection(
+            }
+            if (trendingNewsUiState.success || trendingNewsUiState.data.isNotEmpty()) {
+                items(items = trendingNewsUiState.data, key = { it.url.hashCode() }) { news ->
+                    NewsCard(
                         modifier = Modifier.fillParentMaxWidth(),
-                        viewModel = topicsViewModel
-                    )
-                }
-                if (trendingNewsUiState.loading) {
-                    item(key = "loading") {
-                        Loading(modifier = Modifier.fillParentMaxSize())
+                        news = news
+                    ) {
+                        val customTabsIntent = CustomTabsIntent.Builder()
+                            .setShowTitle(true)
+                            .build()
+                        customTabsIntent.launchUrl(context, Uri.parse(news.url))
                     }
                 }
-                if (trendingNewsUiState.success || trendingNewsUiState.data.isNotEmpty()) {
-                    items(items = trendingNewsUiState.data, key = { it.url.hashCode() }) { news ->
-                        NewsCard(
-                            modifier = Modifier.fillParentMaxWidth(),
-                            news = news
-                        ) {
-                            val customTabsIntent = CustomTabsIntent.Builder()
-                                .setShowTitle(true)
-                                .build()
-                            customTabsIntent.launchUrl(context, Uri.parse(news.url))
-                        }
+                if (trendingNewsUiState.showLoadMore) {
+                    item(key = "loading-more") {
+                        Loading(modifier = Modifier.fillParentMaxWidth())
                     }
-                    if (trendingNewsUiState.showLoadMore) {
-                        item(key = "loading-more") {
-                            Loading(modifier = Modifier.fillParentMaxWidth())
-                        }
-                    }
-                } else if  (!trendingNewsUiState.loading) {
-                    item {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillParentMaxSize()
-                        ) {
-                            Text(
-                                text = trendingNewsUiState.message.takeIf { it.isNotBlank() } ?: run {
-                                    stringResource(R.string.unable_to_load_news)
-                                }
-                            )
-                            Button(onClick = { newsViewModel.fetchTrendingNews() }) {
-                                Text(text = stringResource(R.string.retry))
+                }
+            } else if  (!trendingNewsUiState.loading) {
+                item {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillParentMaxSize()
+                    ) {
+                        Text(
+                            text = trendingNewsUiState.message.takeIf { it.isNotBlank() } ?: run {
+                                stringResource(R.string.unable_to_load_news)
                             }
+                        )
+                        Button(onClick = { newsViewModel.fetchTrendingNews() }) {
+                            Text(text = stringResource(R.string.retry))
                         }
                     }
                 }

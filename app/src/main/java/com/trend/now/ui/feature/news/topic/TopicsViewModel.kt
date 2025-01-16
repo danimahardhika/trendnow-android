@@ -43,7 +43,7 @@ class TopicsViewModel @Inject constructor(
             // wait until we got the selected topic value
             selectedTopic
                 .filter { it.isNotBlank() }
-                // observe only for only time, stop after got the first emit.
+                // observe only for one time, stop after got the first emit.
                 .take(1)
                 .collect {
                     // fetch the news topics when the selected topic value is ready
@@ -60,6 +60,7 @@ class TopicsViewModel @Inject constructor(
                 // skip when the value is identical
                 .distinctUntilChanged()
                 .collect { topic ->
+                    // update the ui state selected topic value
                     _uiState.update {
                         _uiState.value.copy(selectedTopic = topic)
                     }

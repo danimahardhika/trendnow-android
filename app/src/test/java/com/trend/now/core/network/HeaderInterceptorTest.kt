@@ -12,6 +12,7 @@ import okhttp3.Request
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -45,12 +46,13 @@ class HeaderInterceptorTest {
         // when
         mockWebServer.enqueue(MockResponse())
         val response = okHttpClient.newCall(request).execute()
+
         // then
-        assert(
+        assertEquals(
+            "news-api14.p.rapidapi.com",
             response.request.headers["x-rapidapi-host"]
-                == "news-api14.p.rapidapi.com"
         )
-        assert(response.request.headers["x-rapidapi-key"]!!.isNotBlank())
+        assertEquals(true, response.request.headers["x-rapidapi-key"]!!.isNotBlank())
     }
 
     companion object {

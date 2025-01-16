@@ -21,6 +21,7 @@ import io.mockk.just
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -75,8 +76,10 @@ class NewsRepositoryTest {
             mockNewsRemoteDataSource.getSupportedTopics()
         } returns ApiResult.Success(topics)
         coEvery { mockTopicDao.insertAll(any()) } just Runs
+
         // when
         val result = newsRepository.fetchSupportedTopics()
+
         // then
         coVerify(exactly = 1) { mockNewsLocalDataSource.getSupportedTopics() }
         coVerify(exactly = 1) { mockNewsRemoteDataSource.getSupportedTopics() }
@@ -89,8 +92,9 @@ class NewsRepositoryTest {
             )
         }
         // make sure the general topic moved to index 0
-        assert(
-            (result as ApiResult.Success).data == listOf(generalTopic, topics[0])
+        assertEquals(
+            listOf(generalTopic, topics[0]),
+            (result as ApiResult.Success).data
         )
     }
 
@@ -105,15 +109,18 @@ class NewsRepositoryTest {
         coEvery {
             mockNewsLocalDataSource.getSupportedTopics()
         } returns ApiResult.Success(topics)
+
         // when
         val result = newsRepository.fetchSupportedTopics()
+
         // then
         coVerify(exactly = 1) { mockNewsLocalDataSource.getSupportedTopics() }
         coVerify(exactly = 0) { mockNewsRemoteDataSource.getSupportedTopics() }
         coVerify(exactly = 0) { mockTopicDao.insertAll(any()) }
         // make sure the general topic moved to index 0
-        assert(
-            (result as ApiResult.Success).data == listOf(generalTopic, topics[0])
+        assertEquals(
+            listOf(generalTopic, topics[0]),
+            (result as ApiResult.Success).data
         )
     }
 
@@ -132,8 +139,10 @@ class NewsRepositoryTest {
             mockNewsRemoteDataSource.getSupportedTopics()
         } returns ApiResult.Success(topics)
         coEvery { mockTopicDao.insertAll(any()) } just Runs
+
         // when
         val result = newsRepository.fetchSupportedTopics()
+
         // then
         coVerify(exactly = 1) { mockNewsLocalDataSource.getSupportedTopics() }
         coVerify(exactly = 1) { mockNewsRemoteDataSource.getSupportedTopics() }
@@ -146,8 +155,9 @@ class NewsRepositoryTest {
             )
         }
         // make sure the general topic moved to index 0
-        assert(
-            (result as ApiResult.Success).data == listOf(generalTopic, topics[0])
+        assertEquals(
+            listOf(generalTopic, topics[0]),
+            (result as ApiResult.Success).data
         )
     }
 
@@ -160,11 +170,13 @@ class NewsRepositoryTest {
         } returns ApiResult.Success(
             NewsResult(data = listOf(news()), fromCache = false, url = "url")
         )
+
         // when
         val result = newsRepository.fetchTrendingNews(topic = "", language = "")
+
         // then
         coVerify(exactly = 1) { mockNewsCacheManager.addNewsCache(any()) }
-        assert((result as ApiResult.Success).data.size == 1)
+        assertEquals(1, (result as ApiResult.Success).data.size)
     }
 
     @Test
@@ -175,11 +187,13 @@ class NewsRepositoryTest {
         } returns ApiResult.Success(
             NewsResult(data = listOf(news()), fromCache = true, url = "url")
         )
+
         // when
         val result = newsRepository.fetchTrendingNews(topic = "", language = "")
+
         // then
         coVerify(exactly = 0) { mockNewsCacheManager.addNewsCache(any()) }
-        assert((result as ApiResult.Success).data.size == 1)
+        assertEquals(1, (result as ApiResult.Success).data.size)
     }
 
     @Test
@@ -189,11 +203,13 @@ class NewsRepositoryTest {
         coEvery {
             mockNewsRemoteDataSource.getTrendingNews(topic = any(), language = any())
         } returns error
+
         // when
         val result = newsRepository.fetchTrendingNews(topic = "", language = "")
+
         // then
-        assert((result as ApiResult.Error).code == error.code)
-        assert(result.message == error.message)
+        assertEquals(error.code, (result as ApiResult.Error).code)
+        assertEquals(error.message, result.message)
     }
 
     @Test
@@ -202,8 +218,10 @@ class NewsRepositoryTest {
         coEvery {
             mockNewsLocalDataSource.getSupportedCountries()
         } returns ApiResult.Success(mapOf())
+
         // when
         newsRepository.fetchSupportedCountries()
+
         // then
         coVerify(exactly = 1) { mockNewsLocalDataSource.getSupportedCountries() }
         coVerify(exactly = 0) { mockNewsRemoteDataSource.getSupportedCountries() }

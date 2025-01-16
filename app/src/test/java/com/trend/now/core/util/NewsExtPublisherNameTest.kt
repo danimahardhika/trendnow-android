@@ -2,6 +2,7 @@ package com.trend.now.core.util
 
 import com.trend.now.data.model.News
 import com.trend.now.data.model.Publisher
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class NewsExtPublisherNameTest {
@@ -10,10 +11,12 @@ class NewsExtPublisherNameTest {
     fun `should return publisher name when it's not empty`() {
         // given
         val news = news(Publisher(name = "Publisher Name", url = "", favicon = ""))
+
         // when
         val publisherName = news.publisherName()
+
         // then
-        assert(publisherName == news.publisher.name)
+        assertEquals(news.publisher.name, publisherName)
     }
 
     @Test
@@ -22,10 +25,12 @@ class NewsExtPublisherNameTest {
         val news = news(
             Publisher(name = "", url = "https://publisher.url.com/something", favicon = "")
         )
+
         // when
         val publisherName = news.publisherName()
+
         // then
-        assert(publisherName == "publisher.url.com")
+        assertEquals("publisher.url.com", publisherName)
     }
 
     @Test
@@ -34,10 +39,12 @@ class NewsExtPublisherNameTest {
         val news = news(
             Publisher(name = "", url = "", favicon = "")
         )
+
         // when
         val publisherName = news.publisherName()
+
         // then
-        assert(publisherName == "")
+        assertEquals("", publisherName)
     }
 
     private fun news(publisher: Publisher) = News(
