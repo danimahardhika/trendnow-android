@@ -4,7 +4,16 @@ News aggregator app built using Jetpack Compose with Bonai News API
 
 ## Setup
 
-Get the Bonai News API for free from here https://rapidapi.com/bonaipowered/api/news-api14
+- Get the Bonai News API for free from here https://rapidapi.com/bonaipowered/api/news-api14
+- Add the api key to `ApiKey.kt` file inside `app/src/main/java/com/trend/now/` (Need to create the file manually)
+
+```kotlin
+package com.trend.now
+
+const val apiKey = "your-api-key"
+```
+
+- Run the app (currently using Android Studio Ladybug Feature Drop | 2024.2.2)
 
 ## Features
 
