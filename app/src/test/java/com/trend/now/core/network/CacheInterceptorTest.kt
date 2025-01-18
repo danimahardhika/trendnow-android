@@ -17,6 +17,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -61,11 +62,13 @@ class CacheInterceptorTest {
     fun `should make request with cache options when hasNetwork is false`() {
         // given
         every { NetworkUtil.hasNetwork(any()) } returns false
+
         // when
         mockWebServer.enqueue(MockResponse())
         val response = okHttpClient.newCall(request).execute()
+
         // then
-        assert(response.request.headers["Cache-Control"]!!.isNotBlank())
+        assertEquals(true, response.request.headers["Cache-Control"]!!.isNotBlank())
     }
 
     @Test
@@ -73,11 +76,13 @@ class CacheInterceptorTest {
         // given
         every { NetworkUtil.hasNetwork(any()) } returns true
         coEvery { mockNewsCacheManager.isPreferUseCache(any()) } returns true
+
         // when
         mockWebServer.enqueue(MockResponse())
         val response = okHttpClient.newCall(request).execute()
+
         // then
-        assert(response.request.headers["Cache-Control"]!!.isNotBlank())
+        assertEquals(true, response.request.headers["Cache-Control"]!!.isNotBlank())
     }
 
     @Test
@@ -85,11 +90,13 @@ class CacheInterceptorTest {
         // given
         every { NetworkUtil.hasNetwork(any()) } returns true
         coEvery { mockNewsCacheManager.isPreferUseCache(any()) } returns false
+
         // when
         mockWebServer.enqueue(MockResponse())
         val response = okHttpClient.newCall(request).execute()
+
         // then
-        assert(response.request.headers["Cache-Control"] == null)
+        assertEquals(null, response.request.headers["Cache-Control"])
     }
 
     companion object {

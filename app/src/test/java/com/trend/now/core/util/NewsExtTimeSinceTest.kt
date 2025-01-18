@@ -2,6 +2,7 @@ package com.trend.now.core.util
 
 import com.trend.now.data.model.News
 import com.trend.now.data.model.Publisher
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Calendar
 import java.util.TimeZone
@@ -21,7 +22,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
-        assert(timeSince == "5s ago")
+        assertEquals("5s ago", timeSince)
     }
 
     @Test
@@ -35,7 +36,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
-        assert(timeSince == "0s ago")
+        assertEquals( "0s ago", timeSince)
     }
 
     @Test
@@ -50,7 +51,7 @@ class NewsExtTimeSinceTest {
         val timeSince = news.timeSince(now.timeInMillis)
         // then
 
-        assert(timeSince == "4m ago")
+        assertEquals("4m ago", timeSince)
     }
 
     @Test
@@ -64,7 +65,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
-        assert(timeSince == "1h ago")
+        assertEquals("1h ago", timeSince)
     }
 
     @Test
@@ -78,7 +79,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
-        assert(timeSince == "1d ago")
+        assertEquals("1d ago", timeSince)
     }
 
     @Test
@@ -92,7 +93,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
-        assert(timeSince == "1w ago")
+        assertEquals("1w ago", timeSince)
     }
 
     @Test
@@ -110,7 +111,7 @@ class NewsExtTimeSinceTest {
             timeZone = timeZone
         )
         // then
-        assert(timeSince == "01 Jan 2025 02:16 PM")
+        assertEquals("01 Jan 2025 02:16 PM", timeSince)
     }
 
     @Test
@@ -128,7 +129,7 @@ class NewsExtTimeSinceTest {
             timeZone = timeZone
         )
         // then
-        assert(timeSince == "02 Jan 2025 02:16 PM")
+        assertEquals("02 Jan 2025 02:16 PM", timeSince)
     }
 
     @Test
@@ -142,7 +143,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now = now.timeInMillis)
         // then
-        assert(timeSince == "")
+        assertEquals("", timeSince)
     }
 
     @Test
@@ -156,7 +157,7 @@ class NewsExtTimeSinceTest {
         // when
         val timeSince = news.timeSince(now = now.timeInMillis)
         // then
-        assert(timeSince == "")
+        assertEquals("", timeSince)
     }
 
     private fun news(date: String) = News(

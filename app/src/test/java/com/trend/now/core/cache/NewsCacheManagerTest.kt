@@ -19,6 +19,7 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import okhttp3.Cache
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -69,10 +70,12 @@ class NewsCacheManagerTest {
             // cache age is less than 1 hour
             createdAt = "2025-01-02T22:30:00+00:00".toDate()!!.time
         )
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(isPreferUseCache)
+        assertEquals(true, isPreferUseCache)
     }
 
     @Test
@@ -92,10 +95,12 @@ class NewsCacheManagerTest {
             // but still within the same day
             createdAt = "2025-01-02T23:00:00+00:00".toDate()!!.time
         )
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(isPreferUseCache)
+        assertEquals(true, isPreferUseCache)
     }
 
     @Test
@@ -108,10 +113,12 @@ class NewsCacheManagerTest {
             // cache age is after current date time
             createdAt = "2025-01-02T10:00:00+00:00".toDate()!!.time
         )
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(isPreferUseCache)
+        assertEquals(true, isPreferUseCache)
     }
 
     @Test
@@ -120,10 +127,12 @@ class NewsCacheManagerTest {
         // empty cache
         val mockIterator = mutableListOf("").listIterator()
         every { mockCache.urls() } returns mockIterator
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(!isPreferUseCache)
+        assertEquals(false, isPreferUseCache)
     }
 
     @Test
@@ -131,12 +140,13 @@ class NewsCacheManagerTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
-
         coEvery { mockNewsCacheDao.getNewsCache(mockParentUrl) } returns null
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(!isPreferUseCache)
+        assertEquals(false, isPreferUseCache)
     }
 
     @Test
@@ -144,15 +154,16 @@ class NewsCacheManagerTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
-
         coEvery { mockNewsCacheDao.getNewsCache(mockParentUrl) } returns newsCache(
             // cache age is more than 2 days
             createdAt = "2025-01-05T00:00:00+00:00".toDate()!!.time
         )
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(!isPreferUseCache)
+        assertEquals(false, isPreferUseCache)
     }
 
     @Test
@@ -160,16 +171,17 @@ class NewsCacheManagerTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
-
         coEvery { mockNewsCacheDao.getNewsCache(mockParentUrl) } returns newsCache(
             // cache age is less than 18 hours
             // but not within the same day
             createdAt = "2025-01-01T23:50:00+00:00".toDate()!!.time
         )
+
         // when
         val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+
         // then
-        assert(!isPreferUseCache)
+        assertEquals(false, isPreferUseCache)
     }
 
     @Test
@@ -183,8 +195,10 @@ class NewsCacheManagerTest {
         )
         coEvery { mockNewsCacheDao.deleteNewsCache(parentUrl = parentUrl) } just Runs
         coEvery { mockNewsCacheDao.insertNewsCache(newsCache) } just Runs
+
         // when
         newsCacheManager.addNewsCache(parentUrl)
+
         // then
         coVerify(exactly = 1) { mockNewsCacheDao.deleteNewsCache(parentUrl) }
         coVerify(exactly = 1) { mockNewsCacheDao.insertNewsCache(newsCache) }
@@ -201,8 +215,10 @@ class NewsCacheManagerTest {
         )
         coEvery { mockNewsCacheDao.deleteNewsCache(parentUrl = url) } just Runs
         coEvery { mockNewsCacheDao.insertNewsCache(newsCache) } just Runs
+
         // when
         newsCacheManager.addNewsCache(url)
+
         // then
         coVerify(exactly = 1) { mockNewsCacheDao.deleteNewsCache(url) }
         coVerify(exactly = 1) { mockNewsCacheDao.insertNewsCache(newsCache) }
@@ -219,8 +235,10 @@ class NewsCacheManagerTest {
         )
         coEvery { mockNewsCacheDao.deleteNewsCache(parentUrl = url) } just Runs
         coEvery { mockNewsCacheDao.insertNewsCache(newsCache) } just Runs
+
         // when
         newsCacheManager.addNewsCache(url)
+
         // then
         coVerify(exactly = 1) { mockNewsCacheDao.deleteNewsCache(url) }
         coVerify(exactly = 1) { mockNewsCacheDao.insertNewsCache(newsCache) }
@@ -240,8 +258,10 @@ class NewsCacheManagerTest {
         // need to mock getParentUrl because we can run Uri.parse in junit test
         // isReturnDefaultValues = true will return the given string as it is which not what we wanted
         every { mockNewsCacheManager.getParentUrl(url) } returns mockParentUrl
+
         // when
         mockNewsCacheManager.addNewsCache(url)
+
         // then
         coVerify(exactly = 0) { mockNewsCacheDao.deleteNewsCache(any()) }
         coVerify(exactly = 1) { mockNewsCacheDao.insertNewsCache(newsCache) }

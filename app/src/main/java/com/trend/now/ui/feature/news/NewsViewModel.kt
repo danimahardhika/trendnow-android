@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -61,10 +62,8 @@ class NewsViewModel @Inject constructor(
     }
 
     fun fetchTrendingNews() {
-        if (!_trendingNewsUiState.value.loading) {
-            _trendingNewsUiState.value = _trendingNewsUiState.value.copy(
-                loading = true
-            )
+        _trendingNewsUiState.update {
+            _trendingNewsUiState.value.copy(loading = true)
         }
         internalFetchTrendingNews()
     }
@@ -127,7 +126,7 @@ class NewsViewModel @Inject constructor(
                         when (result) {
                             is ApiResult.Success -> {
                                 val meta = result.meta
-                                _trendingNewsUiState.value =
+                                _trendingNewsUiState.update {
                                     _trendingNewsUiState.value.copy(
                                         data = if (loadingMore) {
                                             // add the new loaded trending news to the existing list
@@ -142,11 +141,12 @@ class NewsViewModel @Inject constructor(
                                         // load more only when the current page < total page
                                         // got from the api response
                                         showLoadMore =
-                                            // whether should load more or note
+                                            // whether should load more or not
                                             // when reached the bottom of the trending news list
                                             meta.page > 0 && meta.page < meta.totalPages,
                                         page = meta.page // save the current page
                                     )
+                                }
                             }
                             is ApiResult.Error -> _trendingNewsUiState.value =
                                 _trendingNewsUiState.value.copy(

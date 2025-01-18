@@ -45,7 +45,6 @@ class UserPrefRepositoryImpl @Inject constructor(
 ) : UserPrefRepository {
 
     override val selectedTopic: Flow<String> = dataStore.data
-        //
         .map { it[selectedTopicPref] ?: DEFAULT_TOPIC }
 
     override suspend fun setSelectedTopic(topicId: String) {
