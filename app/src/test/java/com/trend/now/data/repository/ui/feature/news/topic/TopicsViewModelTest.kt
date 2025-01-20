@@ -41,7 +41,6 @@ class TopicsViewModelTest {
     private lateinit var mockNewsRepository: NewsRepository
 
     private lateinit var userPrefRepository: UserPrefRepository
-
     private lateinit var dataStore: DataStore<Preferences>
 
     private val topicsViewModel: TopicsViewModel get() = TopicsViewModel(
@@ -122,6 +121,7 @@ class TopicsViewModelTest {
             advanceUntilIdle() // wait the flow emits
 
             // then
+            // no emits triggered
             expectNoEvents()
         }
     }
