@@ -50,7 +50,7 @@ const val apiKey = "your-api-key"
 
 ## Medium articles
 
-Series of medium articles how I build the app
+Series of medium articles how I built the app
 
 - [TrendNow: Build an Android News App with Jetpack Compose](https://medium.com/@danimahardhika/trendnow-build-an-android-news-app-with-jetpack-compose-618ec1986296)
 - [Add News Topics to TrendNow: Implement Horizontal Scroll in LazyColumn Jetpack Compose](https://medium.com/@danimahardhika/add-news-topics-to-trendnow-implement-horizontal-scroll-in-lazycolumn-jetpack-compose-17d27284f4e0)
