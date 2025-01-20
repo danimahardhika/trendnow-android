@@ -52,4 +52,10 @@ const val apiKey = "your-api-key"
 
 Series of medium articles how I build the app
 
-`TBA`
+- [TrendNow: Build an Android News App with Jetpack Compose](https://medium.com/@danimahardhika/trendnow-build-an-android-news-app-with-jetpack-compose-618ec1986296)
+- [Add News Topics to TrendNow: Implement Horizontal Scroll in LazyColumn Jetpack Compose](https://medium.com/@danimahardhika/add-news-topics-to-trendnow-implement-horizontal-scroll-in-lazycolumn-jetpack-compose-17d27284f4e0)
+- [Filter News by Topic in TrendNow: Save User Preferences with DataStore and Optimize Recomposition](https://medium.com/@danimahardhika/filter-news-by-topic-in-trendnow-save-user-preferences-with-datastore-and-optimize-recomposition-4e619e8476a8)
+- [Load More News in TrendNow: Implement Infinite Scroll in LazyColumn Jetpack Compose](https://medium.com/@danimahardhika/load-more-news-in-trendnow-implement-infinite-scroll-in-lazycolumn-jetpack-compose-6bdc98c25e48)
+- [Cache on the Client Side in TrendNow: Implement Room Database](https://medium.com/@danimahardhika/cache-news-topics-in-trendnow-use-room-database-for-efficient-client-side-caching-1b950c10b841)
+- [Handle API Limits in TrendNow: Implement OkHttp Cache for Client-Side Caching](https://medium.com/@danimahardhika/handle-api-limits-in-trendnow-implement-okhttp-cache-for-client-side-caching-5989b67ddfbf)
+- more coming...
