@@ -91,40 +91,28 @@ class NewsCacheManager @Inject constructor(
     fun getParentUrl(url: String): String = try {
         val uri = Uri.parse(url)
         // parent url only for trendings path
-        if (uri.query?.isBlank() == true || uri.path != TRENDING_PATH) {
+        if (uri.query?.isBlank() == true || uri.path != TRENDINGS_PATH) {
             url
         } else {
-            // original url:
-            // ".../v2/trendings?topic=general&language=en&country=US&page=2"
-            val uriBuilder = Uri.Builder()
-                .scheme(uri.scheme)
-                .authority(uri.authority)
-                .path(uri.path)
-            // remove page query from the url
-            uri.queryParameterNames.forEach { param ->
-                if (param != PAGE_QUERY_NAME) {
-                    uri.getQueryParameters(param).forEach { value ->
-                        uriBuilder.appendQueryParameter(param, value)
-                    }
-                }
+            // use regex to remove page query param
+            val regex = Regex("([&?])${PAGE_QUERY_NAME}=\\d+(&?)")
+            regex.replace(url) { matchResult ->
+                if (matchResult.groupValues[2].isEmpty()) matchResult.groupValues[1] else ""
             }
-            // modified url as parent url:
-            // ".../v2/trendings?topic=general&language=en&country=US"
-            uriBuilder.build().toString()
         }
     } catch (e: Exception) {
         url
     }
 
     companion object {
-        private const val TRENDING_PATH = "/v2/trendings"
+        private const val TRENDINGS_PATH = "/v2/trendings"
         private const val PAGE_QUERY_NAME = "page"
     }
 }
 
 // create our own find function for iterator
 // so that it will be easier to mock the cache urls in unit test
-private fun <T> Iterator<T>.find(predicate: (T) -> Boolean): T? {
+fun <T> Iterator<T>.find(predicate: (T) -> Boolean): T? {
     var result: T? = null
     var hasNext = hasNext()
     while (hasNext) {

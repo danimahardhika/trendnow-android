@@ -101,7 +101,7 @@ class NewsRepositoryTest {
     @Test
     fun `fetchSupportedTopics should use local data when it is exist and cache age is valid`() = runTest {
         // given
-        // cache age is less than 180 days
+        // cache age is less than 60 days
         val createdAt = "2025-01-30T23:00:00+00:00".toDate()!!.time
         val generalTopic = topic(id = "general", createdAt = createdAt)
         val topics = listOf(topic(createdAt = createdAt), generalTopic)
@@ -125,9 +125,9 @@ class NewsRepositoryTest {
     }
 
     @Test
-    fun `fetchSupportedTopics should use remote data when local data is exist but cache age is invalid`() = runTest {
+    fun `fetchSupportedTopics should use remote data when local data is exist and cache age is invalid`() = runTest {
         // given
-        // cache age is more than 180 days
+        // cache age is more than 60 days
         val createdAt = "2025-08-02T23:00:00+00:00".toDate()!!.time
         val generalTopic = topic(id = "general", createdAt = createdAt)
         val topics = listOf(topic(createdAt = createdAt), generalTopic)
