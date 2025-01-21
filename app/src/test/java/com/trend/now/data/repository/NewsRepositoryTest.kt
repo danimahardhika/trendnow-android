@@ -7,9 +7,8 @@ import com.trend.now.core.util.toDate
 import com.trend.now.data.datasource.NewsLocalDataSource
 import com.trend.now.data.datasource.NewsRemoteDataSource
 import com.trend.now.data.local.TopicDao
-import com.trend.now.data.model.News
 import com.trend.now.data.model.NewsResult
-import com.trend.now.data.model.Publisher
+import com.trend.now.util.news
 import com.trend.now.util.topic
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
@@ -226,16 +225,6 @@ class NewsRepositoryTest {
         coVerify(exactly = 1) { mockNewsLocalDataSource.getSupportedCountries() }
         coVerify(exactly = 0) { mockNewsRemoteDataSource.getSupportedCountries() }
     }
-
-    private fun news(): News =
-        News(
-            title = "title",
-            url = "url",
-            excerpt = "excerpt",
-            thumbnail = "thumbnail",
-            date = "date",
-            publisher = Publisher(name = "name", url = "url", favicon = "favicon")
-        )
 
     companion object {
 

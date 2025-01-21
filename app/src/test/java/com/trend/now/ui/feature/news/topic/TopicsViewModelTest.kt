@@ -1,4 +1,4 @@
-package com.trend.now.data.repository.ui.feature.news.topic
+package com.trend.now.ui.feature.news.topic
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -9,7 +9,6 @@ import com.trend.now.core.network.ApiResult
 import com.trend.now.data.repository.UserPrefRepository
 import com.trend.now.data.repository.NewsRepository
 import com.trend.now.data.repository.UserPrefRepositoryImpl
-import com.trend.now.ui.feature.news.topic.TopicsViewModel
 import com.trend.now.util.topic
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks

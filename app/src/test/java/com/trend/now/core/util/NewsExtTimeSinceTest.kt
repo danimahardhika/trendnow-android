@@ -1,7 +1,6 @@
 package com.trend.now.core.util
 
-import com.trend.now.data.model.News
-import com.trend.now.data.model.Publisher
+import com.trend.now.util.news
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Calendar
@@ -18,7 +17,7 @@ class NewsExtTimeSinceTest {
             time = "2025-01-07T14:16:45+00:00".toDate()!!
         }
         val newsDate = "2025-01-07T14:16:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
@@ -32,7 +31,7 @@ class NewsExtTimeSinceTest {
         val now = calendar.apply {
             time = datetime.toDate()!!
         }
-        val news = news(datetime)
+        val news = news(date = datetime)
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
@@ -46,7 +45,7 @@ class NewsExtTimeSinceTest {
             time = "2025-01-07T14:16:40+00:00".toDate()!!
         }
         val newsDate = "2025-01-07T14:12:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
@@ -61,7 +60,7 @@ class NewsExtTimeSinceTest {
             time = "2025-01-07T15:46:40+00:00".toDate()!!
         }
         val newsDate = "2025-01-07T14:16:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
@@ -75,7 +74,7 @@ class NewsExtTimeSinceTest {
             time = "2025-01-08T14:16:40+00:00".toDate()!!
         }
         val newsDate = "2025-01-07T14:16:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
@@ -89,7 +88,7 @@ class NewsExtTimeSinceTest {
             time = "2025-01-16T15:16:40+00:00".toDate()!!
         }
         val newsDate = "2025-01-07T14:16:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now.timeInMillis)
         // then
@@ -104,7 +103,7 @@ class NewsExtTimeSinceTest {
             time = "2025-03-01T15:16:40+00:00".toDate()!!
         }
         val newsDate = "2025-01-01T14:16:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(
             now = now.timeInMillis,
@@ -122,7 +121,7 @@ class NewsExtTimeSinceTest {
             time = "2025-01-01T14:16:40+00:00".toDate()!!
         }
         val newsDate = "2025-01-02T14:16:40+00:00"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(
             now = now.timeInMillis,
@@ -139,7 +138,7 @@ class NewsExtTimeSinceTest {
             time = "2025-03-01T15:16:40+00:00".toDate()!!
         }
         val newsDate = ""
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now = now.timeInMillis)
         // then
@@ -153,19 +152,10 @@ class NewsExtTimeSinceTest {
             time = "2025-03-01T15:16:40+00:00".toDate()!!
         }
         val newsDate = "2025-03-01 15:16"
-        val news = news(newsDate)
+        val news = news(date = newsDate)
         // when
         val timeSince = news.timeSince(now = now.timeInMillis)
         // then
         assertEquals("", timeSince)
     }
-
-    private fun news(date: String) = News(
-        title = "",
-        url = "",
-        excerpt = "",
-        thumbnail = "",
-        date = date,
-        publisher = Publisher(name = "", url = "", favicon = ""),
-    )
 }
