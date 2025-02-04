@@ -11,7 +11,6 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.abs
 
 @Singleton
 class NewsCacheManager @Inject constructor(
@@ -29,7 +28,7 @@ class NewsCacheManager @Inject constructor(
      * @param url The endpoint full url including its query params
      * @return Whether should use cache for the given url or not
      */
-    suspend fun isPreferUseCache(url: String): Boolean {
+    suspend fun isCacheAvailable(url: String): Boolean {
         // finding a string inside of list of string may has performance impact
         // if there are so many cached urls
         // but will keep this as for now since this is all we have
@@ -40,20 +39,26 @@ class NewsCacheManager @Inject constructor(
 
         val cacheDateInMillis = newsCacheDao.getNewsCache(url)?.createdAt
         if (cacheDateInMillis != null) {
-            val todayDate = currentDateProvider()
-            val cacheDate = Calendar.getInstance().apply {
+            val todayCalendar = currentDateProvider()
+            val cacheCalendar = Calendar.getInstance().apply {
                 timeInMillis = cacheDateInMillis
-                timeZone = todayDate.timeZone
+                timeZone = todayCalendar.timeZone
             }
             val diffInHours = TimeUnit.HOURS.fromMs(
-                abs(todayDate.timeInMillis - cacheDate.timeInMillis)
+                todayCalendar.timeInMillis - cacheCalendar.timeInMillis
             )
+
+            if (diffInHours < 0) {
+                // this means the cache date is after today which most likely invalid
+                return false
+            }
+
             // force use cache if the cache timestamp is still within the x timeframe
             // or still in the same day
             return (diffInHours < MAX_NEWS_CACHE_IN_HOURS)
-                && (todayDate.day() == cacheDate.day()
-                && todayDate.month() == cacheDate.month()
-                && todayDate.year() == cacheDate.year())
+                && (todayCalendar.day() == cacheCalendar.day()
+                && todayCalendar.month() == cacheCalendar.month()
+                && todayCalendar.year() == cacheCalendar.year())
 
         }
         return false
@@ -69,7 +74,7 @@ class NewsCacheManager @Inject constructor(
     suspend fun addNewsCache(url: String) {
         val parentUrl = getParentUrl(url)
         if (parentUrl == url) {
-            // there are 2 possibilities why this part called
+            // there are 2 possibilities why this part is called
             // 1. news cache has been outdated and needs to be updated
             // 2. first time load news
             // if the news cache has been outdated that means the cache for this url are invalid
@@ -79,7 +84,7 @@ class NewsCacheManager @Inject constructor(
 
         val cache = NewsCache(
             url = url,
-            parentUrl = getParentUrl(url),
+            parentUrl = parentUrl,
             createdAt = currentDateProvider().timeInMillis
         )
         newsCacheDao.insertNewsCache(cache)

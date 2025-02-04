@@ -15,7 +15,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideNewsCacheRepository(
+    fun provideNewsCacheManager(
         cache: Cache,
         newsCacheDao: NewsCacheDao,
     ): NewsCacheManager = NewsCacheManager(cache, newsCacheDao)

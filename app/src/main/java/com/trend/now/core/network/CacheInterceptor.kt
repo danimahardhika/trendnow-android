@@ -23,10 +23,10 @@ class CacheInterceptor @Inject constructor(
 
         // no need to filter the endpoint url here
         // the filtering should be done in the news cache manager
-        val isPreferUseCache = runBlocking(Dispatchers.IO) {
-            newsCacheManager.isPreferUseCache(url)
+        val isCacheAvailable = runBlocking(Dispatchers.IO) {
+            newsCacheManager.isCacheAvailable(url)
         }
-        val newRequest = if (!NetworkUtil.hasNetwork(context) || isPreferUseCache) {
+        val newRequest = if (!NetworkUtil.hasNetwork(context) || isCacheAvailable) {
             requestBuilder
                 .cacheControl(CacheControl.FORCE_CACHE)
                 .build()

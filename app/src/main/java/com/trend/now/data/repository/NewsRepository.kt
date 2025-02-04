@@ -88,7 +88,7 @@ class NewsRepositoryImpl @Inject constructor(
             is ApiResult.Success -> {
                 if (!result.data.fromCache) {
                     // only add to cache when the result comes from network
-                    // ignore if its comes from cache
+                    // ignore if its comes from the  cache
                     newsCacheManager.addNewsCache(result.data.url)
                 }
                 ApiResult.Success(result.data.data, result.meta)
