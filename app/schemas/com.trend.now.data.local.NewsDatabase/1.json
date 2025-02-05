@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "09afcd4a79ec6ee9210bd84fcb413955",
+    "identityHash": "95d8ba91e88edf3181b188818257b76a",
     "entities": [
       {
         "tableName": "topics",
@@ -38,14 +38,8 @@
       },
       {
         "tableName": "news_cache",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `parentUrl` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `parentUrl` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`url`))",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "url",
             "columnName": "url",
@@ -66,29 +60,19 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "url"
           ]
         },
-        "indices": [
-          {
-            "name": "index_news_cache_url",
-            "unique": true,
-            "columnNames": [
-              "url"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_news_cache_url` ON `${TABLE_NAME}` (`url`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '09afcd4a79ec6ee9210bd84fcb413955')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '95d8ba91e88edf3181b188818257b76a')"
     ]
   }
 }
