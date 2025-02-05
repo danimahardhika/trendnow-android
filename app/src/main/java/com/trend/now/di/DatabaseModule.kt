@@ -25,7 +25,8 @@ object DatabaseModule {
             context,
             NewsDatabase::class.java,
             NEWS_DATABASE
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
 
     @Provides
     @Singleton
