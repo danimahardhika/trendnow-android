@@ -50,7 +50,7 @@ class NewsRemoteDataSource @Inject constructor(
         if (body != null) {
             val result = NewsResult(
                 data = body.data,
-                fromCache = response.raw().cacheResponse != null,
+                fromCache = response.raw().networkResponse == null,
                 url = response.raw().request.url.toUrl().toString()
             )
             ApiResult.Success(result, Meta(body.size, body.page, body.totalPages))
