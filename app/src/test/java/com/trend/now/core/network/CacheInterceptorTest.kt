@@ -72,10 +72,10 @@ class CacheInterceptorTest {
     }
 
     @Test
-    fun `should make request with cache control when isPreferUseCache returns true`() {
+    fun `should make request with cache control when isCacheAvailable returns true`() {
         // given
         every { NetworkUtil.hasNetwork(any()) } returns true
-        coEvery { mockNewsCacheManager.isPreferUseCache(any()) } returns true
+        coEvery { mockNewsCacheManager.isCacheAvailable(any()) } returns true
 
         // when
         mockWebServer.enqueue(MockResponse())
@@ -86,10 +86,10 @@ class CacheInterceptorTest {
     }
 
     @Test
-    fun `should make request without cache control when isPreferUseCache returns false`() {
+    fun `should make request without cache control when isCacheAvailable returns false`() {
         // given
         every { NetworkUtil.hasNetwork(any()) } returns true
-        coEvery { mockNewsCacheManager.isPreferUseCache(any()) } returns false
+        coEvery { mockNewsCacheManager.isCacheAvailable(any()) } returns false
 
         // when
         mockWebServer.enqueue(MockResponse())

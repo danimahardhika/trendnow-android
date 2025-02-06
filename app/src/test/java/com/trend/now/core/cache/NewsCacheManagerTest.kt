@@ -61,7 +61,7 @@ class NewsCacheManagerTest {
     }
 
     @Test
-    fun `isPreferUseCache should return true when cache age is less than 1 hour`() = runTest {
+    fun `isCacheAvailable should return true when cache age is less than 1 hour`() = runTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
@@ -72,14 +72,14 @@ class NewsCacheManagerTest {
         )
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(true, isPreferUseCache)
+        assertEquals(true, isCacheAvailable)
     }
 
     @Test
-    fun `isPreferUseCache should return true when cache age is more than 18 hours but still within the same day`() = runTest {
+    fun `isCacheAvailable should return true when cache age is more than 18 hours but still within the same day`() = runTest {
         // given
         currentDateProvider = {
             Calendar.getInstance().apply {
@@ -97,60 +97,60 @@ class NewsCacheManagerTest {
         )
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(true, isPreferUseCache)
+        assertEquals(true, isCacheAvailable)
     }
 
     @Test
-    fun `isPreferUseCache should return true when cache age is invalid`() = runTest {
+    fun `isCacheAvailable should return false when cache age is invalid`() = runTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
 
         coEvery { mockNewsCacheDao.getNewsCache(mockParentUrl) } returns newsCache(
             // cache age is after current date time
-            createdAt = "2025-01-02T10:00:00+00:00".toDate()!!.time
+            createdAt = "2025-01-03T00:00:00+00:00".toDate()!!.time
         )
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(true, isPreferUseCache)
+        assertEquals(false, isCacheAvailable)
     }
 
     @Test
-    fun `isPreferUseCache should return false when okhttp cache is not exist`() = runTest {
+    fun `isCacheAvailable should return false when okhttp cache is not exist`() = runTest {
         // given
         // empty cache
         val mockIterator = mutableListOf("").listIterator()
         every { mockCache.urls() } returns mockIterator
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(false, isPreferUseCache)
+        assertEquals(false, isCacheAvailable)
     }
 
     @Test
-    fun `isPreferUseCache should return false when okhttp cache is exist and cache metadata is not exist`() = runTest {
+    fun `isCacheAvailable should return false when okhttp cache is exist and cache metadata is not exist`() = runTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
         coEvery { mockNewsCacheDao.getNewsCache(mockParentUrl) } returns null
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(false, isPreferUseCache)
+        assertEquals(false, isCacheAvailable)
     }
 
     @Test
-    fun `isPreferUseCache should return false when cache age is more than 2 days`() = runTest {
+    fun `isCacheAvailable should return false when cache age is more than 2 days`() = runTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
@@ -160,14 +160,14 @@ class NewsCacheManagerTest {
         )
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(false, isPreferUseCache)
+        assertEquals(false, isCacheAvailable)
     }
 
     @Test
-    fun `isPreferUseCache should return false when cache age is less than 18 hours but not within the same day`() = runTest {
+    fun `isCacheAvailable should return false when cache age is less than 18 hours but not within the same day`() = runTest {
         // given
         val mockIterator = mutableListOf(mockParentUrl).listIterator()
         every { mockCache.urls() } returns mockIterator
@@ -178,10 +178,10 @@ class NewsCacheManagerTest {
         )
 
         // when
-        val isPreferUseCache = newsCacheManager.isPreferUseCache(mockParentUrl)
+        val isCacheAvailable = newsCacheManager.isCacheAvailable(mockParentUrl)
 
         // then
-        assertEquals(false, isPreferUseCache)
+        assertEquals(false, isCacheAvailable)
     }
 
     @Test

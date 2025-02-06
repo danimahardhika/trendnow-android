@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.trend.now.data.model.NewsCache
 import com.trend.now.data.model.Topic
 
-@Database(entities = [Topic::class, NewsCache::class], version = 1)
+@Database(entities = [Topic::class, NewsCache::class], version = 2)
 abstract class NewsDatabase : RoomDatabase() {
     abstract fun topicDao(): TopicDao
     abstract fun newsCacheDao(): NewsCacheDao
