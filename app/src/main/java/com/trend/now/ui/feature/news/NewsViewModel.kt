@@ -53,7 +53,7 @@ class NewsViewModel @Inject constructor(
             }.distinctUntilChanged { old, new ->
                 // compare the old and new value
                 // make sure the state flow does not trigger emits with the same value
-                old.first != new.first && old.second != new.second
+                old.first == new.first && old.second == new.second
             }.collect {
                 // fetch trending news each time the selected topic or news preference changed
                 fetchTrendingNews()
