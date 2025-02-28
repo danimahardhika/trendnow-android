@@ -35,34 +35,34 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = if (mainUiState.showOnBoarding) {
-                AppRoute.ONBOARDING
+                AppRoute.OnBoarding.path
             } else {
-                AppRoute.NEWS
+                AppRoute.News.path
             },
             enterTransition = { slideInHorizontally(initialOffsetX = { screenWidthPx }) },
             exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
         ) {
-            composable(route = AppRoute.ONBOARDING) {
+            composable(route = AppRoute.OnBoarding.path) {
                 OnBoardingScreen(modifier = modifier)
             }
-            composable(route = AppRoute.NEWS) {
+            composable(route = AppRoute.News.path) {
                 NewsScreen(modifier = modifier, navController = navController)
             }
             composable(
-                route = AppRoute.LOCAL_NEWS_SETTINGS,
+                route = AppRoute.LocalNewsSettings.path,
             ) {
                 LocalNewsSettingsScreen(modifier = modifier, navController = navController)
             }
-            composable(route = AppRoute.COUNTRY_LIST) {
+            composable(route = AppRoute.CountrySettings.path) {
                 LocaleListScreen(
                     localeList = LocaleList.Country,
                     modifier = modifier,
                     navController = navController,
                 )
             }
-            composable(route = AppRoute.LANGUAGE_LIST) {
+            composable(route = AppRoute.LanguageSettings.path) {
                 LocaleListScreen(
                     localeList = LocaleList.Language,
                     modifier = modifier,

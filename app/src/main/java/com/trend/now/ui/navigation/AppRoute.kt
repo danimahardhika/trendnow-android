@@ -1,9 +1,9 @@
 package com.trend.now.ui.navigation
 
-object AppRoute {
-    const val NEWS = "news"
-    const val ONBOARDING = "onboarding"
-    const val LOCAL_NEWS_SETTINGS = "local-news-settings"
-    const val COUNTRY_LIST = "country-list"
-    const val LANGUAGE_LIST = "language-list"
+sealed class AppRoute(val path: String) {
+    data object News : AppRoute("home")
+    data object OnBoarding : AppRoute("onboarding")
+    data object LocalNewsSettings : AppRoute("local_news_settings")
+    data object CountrySettings : AppRoute("country_settings")
+    data object LanguageSettings : AppRoute("language_settings")
 }
