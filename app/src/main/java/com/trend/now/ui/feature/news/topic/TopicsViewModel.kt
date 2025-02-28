@@ -8,12 +8,11 @@ import com.trend.now.data.repository.NewsRepository
 import com.trend.now.data.repository.UserPrefRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,20 +27,12 @@ class TopicsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TopicsUiState())
     val uiState: StateFlow<TopicsUiState> = _uiState
 
-    // observe the selected topic in datastore
-    private val selectedTopic = userPrefRepository.selectedTopic
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = ""
-        )
-
     private var loading: Boolean = false
 
     init {
         viewModelScope.launch {
             // wait until we got the selected topic value
-            selectedTopic
+            userPrefRepository.selectedTopic
                 .filter { it.isNotBlank() }
                 // observe only for one time, stop after got the first emit.
                 .take(1)
@@ -82,7 +73,7 @@ class TopicsViewModel @Inject constructor(
                 _uiState.update {
                     _uiState.value.copy(
                         topics = result.data,
-                        selectedTopic = selectedTopic.value
+                        selectedTopic = userPrefRepository.selectedTopic.first()
                     )
                 }
             }
