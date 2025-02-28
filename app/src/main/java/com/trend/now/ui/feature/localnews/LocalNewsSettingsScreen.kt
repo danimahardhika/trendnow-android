@@ -85,7 +85,7 @@ fun LocalNewsSettingsScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    navController.navigate(route = AppRoute.COUNTRY_LIST)
+                    navController.navigate(route = AppRoute.CountrySettings.path)
                 }
                 CellAction(
                     text = stringResource(R.string.language),
@@ -98,7 +98,7 @@ fun LocalNewsSettingsScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    navController.navigate(route = AppRoute.LANGUAGE_LIST)
+                    navController.navigate(route = AppRoute.LanguageSettings.path)
                 }
             }
         }
