@@ -58,4 +58,5 @@ Series of medium articles how I built the app
 - [Load More News in TrendNow: Implement Infinite Scroll in LazyColumn Jetpack Compose](https://medium.com/@danimahardhika/load-more-news-in-trendnow-implement-infinite-scroll-in-lazycolumn-jetpack-compose-6bdc98c25e48)
 - [Cache on the Client Side in TrendNow: Implement Room Database](https://medium.com/@danimahardhika/cache-news-topics-in-trendnow-use-room-database-for-efficient-client-side-caching-1b950c10b841)
 - [Handle API Limits in TrendNow: Implement OkHttp Cache for Client-Side Caching](https://medium.com/@danimahardhika/handle-api-limits-in-trendnow-implement-okhttp-cache-for-client-side-caching-5989b67ddfbf)
+- [Enhance Client-Side Caching in TrendNow: Combine OkHttp Cache and Room Database](https://medium.com/@danimahardhika/enhance-client-side-caching-in-trendnow-combine-okhttp-cache-and-room-database-1f47735924ef)
 - more coming...
