@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.coil.okhttp)
     implementation(libs.okhttp)
     implementation(libs.google.accompanist.permission)
+    implementation(libs.paging)
+    implementation(libs.paging.compose)
 
     implementation(libs.androidx.room)
     implementation(libs.androidx.room.ktx)
