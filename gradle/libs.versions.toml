@@ -23,6 +23,7 @@ androixBrowser = "1.8.0"
 accompanistPermission = "0.37.0"
 mockk = "1.13.14"
 turbine = "1.2.0"
+paging = "3.3.6"
 
 [libraries]
 # === start - compose bom ===
@@ -60,6 +61,8 @@ coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil"
 coil-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 google-accompanist-permission = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermission" }
+paging = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
+paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 # test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }

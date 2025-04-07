@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -36,9 +35,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,6 +47,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.trend.now.R
 import com.trend.now.core.util.isListAtTop
 import com.trend.now.ui.feature.news.component.NewsCard
@@ -55,7 +56,6 @@ import com.trend.now.ui.feature.news.localnews.LocalNewsSection
 import com.trend.now.ui.feature.news.localnews.LocalNewsViewModel
 import com.trend.now.ui.feature.news.topic.TopicSection
 import com.trend.now.ui.feature.news.topic.TopicsViewModel
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,29 +88,16 @@ fun NewsScreen(
     // collect the trending news ui state state flow
     val trendingNewsUiState by newsViewModel.trendingNewsUiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { newsListState.layoutInfo.visibleItemsInfo }
-            .map { visibleItems ->
-                val lastVisibleItemIndex = visibleItems.lastOrNull()?.index ?: -1
-                val totalItems = newsListState.layoutInfo.totalItemsCount
-                Pair(lastVisibleItemIndex, totalItems)
-            }
-            .collect { (lastVisibleItemIndex, totalItems) ->
-                if (trendingNewsUiState.data.isEmpty()) return@collect
+    // collect the news paging flow
+    val newsPaging = newsViewModel.newsPaging.collectAsLazyPagingItems()
 
-                if (lastVisibleItemIndex >= totalItems - 1) {
-                    // load more trending news user reached at the bottom of the list
-                    newsViewModel.loadMoreTrendingNews()
-                }
-            }
-    }
+    LaunchedEffect(newsPaging.loadState) {
+        val append = newsPaging.loadState.append
+        val prepend = newsPaging.loadState.prepend
 
-    LaunchedEffect(trendingNewsUiState) {
-        // success is false and news data is not empty
-        // that means the error comes from the load more request
-        if (!trendingNewsUiState.success && trendingNewsUiState.data.isNotEmpty()) {
+        if (append is LoadState.Error || prepend is LoadState.Error) {
             snackbarHostState.showSnackbar(
-                message = context.getString(R.string.unable_to_load_more_news)
+                message = context.getString(R.string.unable_to_load_news)
             )
         }
     }
@@ -184,42 +171,54 @@ fun NewsScreen(
                         viewModel = topicsViewModel
                     )
                 }
-                if (trendingNewsUiState.loading) {
-                    item(key = "loading") {
-                        Loading(modifier = Modifier.fillParentMaxSize())
-                    }
-                }
-                if (trendingNewsUiState.success || trendingNewsUiState.data.isNotEmpty()) {
-                    items(items = trendingNewsUiState.data, key = { it.url.hashCode() }) { news ->
-                        NewsCard(
-                            modifier = Modifier.fillParentMaxWidth(),
-                            news = news
-                        ) {
-                            val customTabsIntent = CustomTabsIntent.Builder()
-                                .setShowTitle(true)
-                                .build()
-                            customTabsIntent.launchUrl(context, Uri.parse(news.url))
+
+                when(newsPaging.loadState.refresh) {
+                    is LoadState.Loading -> {
+                        item(key = "loading") {
+                            Loading(modifier = Modifier.fillParentMaxSize())
                         }
                     }
-                    if (trendingNewsUiState.showLoadMore) {
-                        item(key = "loading-more") {
-                            Loading(modifier = Modifier.fillParentMaxWidth())
-                        }
-                    }
-                } else if  (!trendingNewsUiState.loading) {
-                    item {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillParentMaxSize()
-                        ) {
-                            Text(
-                                text = trendingNewsUiState.message.takeIf { it.isNotBlank() } ?: run {
-                                    stringResource(R.string.unable_to_load_news)
+                    is LoadState.Error -> {
+                        item(key = "error") {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillParentMaxSize()
+                            ) {
+                                Text(
+                                    text = trendingNewsUiState.message.takeIf { it.isNotBlank() } ?: run {
+                                        stringResource(R.string.unable_to_load_news)
+                                    }
+                                )
+                                Button(onClick = { newsViewModel.fetchTrendingNews() }) {
+                                    Text(text = stringResource(R.string.retry))
                                 }
-                            )
-                            Button(onClick = { newsViewModel.fetchTrendingNews() }) {
-                                Text(text = stringResource(R.string.retry))
+                            }
+                        }
+                    }
+                    else -> {
+                        items(
+                            count = newsPaging.itemCount,
+                        ) { index ->
+                            newsPaging[index]?.let { news ->
+                                key(news.url.hashCode()) {
+                                    NewsCard(
+                                        modifier = Modifier.fillParentMaxWidth(),
+                                        news = news
+                                    ) {
+                                        val customTabsIntent = CustomTabsIntent.Builder()
+                                            .setShowTitle(true)
+                                            .build()
+                                        customTabsIntent.launchUrl(context, Uri.parse(news.url))
+                                    }
+                                }
+                            }
+                        }
+
+                        val append = newsPaging.loadState.append
+                        if (append is LoadState.Loading) {
+                            item(key = "loading-more") {
+                                Loading(modifier = Modifier.fillParentMaxWidth())
                             }
                         }
                     }

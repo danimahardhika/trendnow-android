@@ -2,8 +2,12 @@ package com.trend.now.ui.feature.news
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.trend.now.core.network.ApiResult
 import com.trend.now.data.model.NewsPreference
+import com.trend.now.data.paging.NewsPagingSource
 import com.trend.now.data.repository.UserPrefRepository
 import com.trend.now.data.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewsViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
-    private val userPrefRepository: UserPrefRepository,
+    private val userPrefRepository: UserPrefRepository
 ) : ViewModel() {
 
     private val fetchTrendingNewsMutex = Mutex()
@@ -32,9 +36,20 @@ class NewsViewModel @Inject constructor(
     private val _trendingNewsUiState = MutableStateFlow(NewsUiState(loading = true))
     val trendingNewsUiState: StateFlow<NewsUiState> = _trendingNewsUiState
 
-    // use different variable for loadingMore
-    // because we don't want to trigger recomposition in the screen
-    private var loadingMore: Boolean = false
+    val newsPaging = Pager(
+        config = PagingConfig(
+            pageSize = 10,
+            initialLoadSize = 10,
+            prefetchDistance = 1,
+            maxSize = 100
+        ),
+        pagingSourceFactory = {
+            NewsPagingSource(
+                newsRepository = newsRepository,
+                userPrefRepository = userPrefRepository
+            )
+        }
+    ).flow.cachedIn(viewModelScope)
 
     init {
         viewModelScope.launch {
@@ -56,7 +71,8 @@ class NewsViewModel @Inject constructor(
                 old.first == new.first && old.second == new.second
             }.collect {
                 // fetch trending news each time the selected topic or news preference changed
-                fetchTrendingNews()
+                // fetchTrendingNews()
+                // TODO: handle paging refresh data
             }
         }
     }
@@ -66,22 +82,6 @@ class NewsViewModel @Inject constructor(
             _trendingNewsUiState.value.copy(loading = true)
         }
         internalFetchTrendingNews()
-    }
-
-    fun loadMoreTrendingNews() {
-        if (loadingMore) {
-            // immediately return when loading more is still running
-            // to prevent load wrong page when called multiple times
-            return
-        }
-        if (!_trendingNewsUiState.value.showLoadMore) {
-            // reached at the end of the page no need to load more data
-            return
-        }
-        loadingMore = true
-        internalFetchTrendingNews {
-            loadingMore = false
-        }
     }
 
     fun onPullToRefresh() {
@@ -113,28 +113,15 @@ class NewsViewModel @Inject constructor(
                             topic = userPrefRepository.selectedTopic.first(),
                             language = userPrefRepository.newsLanguage.first(),
                             country = userPrefRepository.newsCountry.first(),
-                            page = if (loadingMore) {
-                                // set the page value only when loading more
-                                _trendingNewsUiState.value.page + 1
-                            } else {
-                                // otherwise set to null
-                                null
-                            }
+                            page = null
                         )
 
-                        val data = _trendingNewsUiState.value.data
                         when (result) {
                             is ApiResult.Success -> {
                                 val meta = result.meta
                                 _trendingNewsUiState.update {
                                     _trendingNewsUiState.value.copy(
-                                        data = if (loadingMore) {
-                                            // add the new loaded trending news to the existing list
-                                            // if the result comes from loading more
-                                            data.plus(result.data)
-                                        } else {
-                                            result.data
-                                        },
+                                        data = result.data,
                                         loading = false,
                                         refreshing = false,
                                         success = true,
