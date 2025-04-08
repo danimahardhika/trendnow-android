@@ -97,17 +97,19 @@ fun NewsScreen(
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(newsPaging.loadState) {
-        val append = newsPaging.loadState.append
-        val prepend = newsPaging.loadState.prepend
+        val refresh = newsPaging.loadState.refresh
 
-        if (append is LoadState.Error || prepend is LoadState.Error) {
+        // show snackbar error when load state is error that comes
+        // from pull to refresh
+        if (refresh is LoadState.Error && isRefreshing) {
             snackbarHostState.showSnackbar(
-                message = context.getString(R.string.unable_to_load_news)
+                message =  refresh.error.message.takeIf { !it.isNullOrBlank() } ?: run {
+                    context.getString(R.string.unable_to_load_news)
+                }
             )
         }
 
         // reset the pull to refresh state
-        val refresh = newsPaging.loadState.refresh
         if (refresh is LoadState.NotLoading && isRefreshing) {
             isRefreshing = false
         }
