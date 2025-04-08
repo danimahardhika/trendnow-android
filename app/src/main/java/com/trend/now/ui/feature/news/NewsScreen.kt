@@ -143,18 +143,6 @@ fun NewsScreen(
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.Black
                         )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                navController.navigate(AppRoute.Search.path)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Search,
-                                contentDescription = null
-                            )
-                        }
                     }
                 )
             }
