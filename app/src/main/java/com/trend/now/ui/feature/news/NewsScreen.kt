@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -93,10 +94,10 @@ fun NewsScreen(
     // collect the news paging flow
     val newsPaging = newsViewModel.newsPaging.collectAsLazyPagingItems()
 
-    // determine pull to refresh state
-    var isRefreshing by remember { mutableStateOf(false) }
+    // collect the pull to refresh state
+    val isRefreshing by newsViewModel.isRefreshing.collectAsState()
 
-    LaunchedEffect(newsPaging.loadState) {
+    LaunchedEffect(newsPaging.loadState.refresh) {
         val refresh = newsPaging.loadState.refresh
 
         // show snackbar error when load state is error that comes
@@ -111,7 +112,7 @@ fun NewsScreen(
 
         // reset the pull to refresh state
         if (refresh is LoadState.NotLoading && isRefreshing) {
-            isRefreshing = false
+            newsViewModel.setRefreshing(false)
         }
     }
 
@@ -121,7 +122,7 @@ fun NewsScreen(
             when(action) {
                 PagingEvent.RELOAD -> newsPaging.refresh()
                 PagingEvent.REFRESH -> {
-                    isRefreshing = true
+                    newsViewModel.setRefreshing(true)
                     newsPaging.refresh()
                 }
                 PagingEvent.RETRY -> newsPaging.retry()
@@ -145,6 +146,18 @@ fun NewsScreen(
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.Black
                         )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                navController.navigate(AppRoute.Search.path)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = null
+                            )
+                        }
                     }
                 )
             }

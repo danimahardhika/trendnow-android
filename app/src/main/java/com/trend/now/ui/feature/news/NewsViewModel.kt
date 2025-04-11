@@ -12,7 +12,9 @@ import com.trend.now.data.repository.UserPrefRepository
 import com.trend.now.data.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -27,6 +29,10 @@ class NewsViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val userPrefRepository: UserPrefRepository
 ) : ViewModel() {
+
+    // the pull to refresh state
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     private val _pagingEvent = MutableSharedFlow<PagingEvent>()
     val pagingEvent: SharedFlow<PagingEvent> = _pagingEvent
@@ -71,6 +77,13 @@ class NewsViewModel @Inject constructor(
                 // trigger paging actions reload to fetch the trending news again
                 _pagingEvent.emit(PagingEvent.RELOAD)
             }.launchIn(viewModelScope)
+    }
+
+    /**
+     * Update the [isRefreshing] ui state
+     */
+    fun setRefreshing(isRefreshing: Boolean) {
+        _isRefreshing.value = isRefreshing
     }
 
     /**
