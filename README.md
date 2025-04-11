@@ -60,4 +60,5 @@ Series of medium articles how I built the app
 - [Part 6 - Handle API Limits in TrendNow: Implement OkHttp Cache for Client-Side Caching](https://medium.com/@danimahardhika/handle-api-limits-in-trendnow-implement-okhttp-cache-for-client-side-caching-5989b67ddfbf)
 - [Part 7 - Enhance Client-Side Caching in TrendNow: Combine OkHttp Cache and Room Database](https://medium.com/@danimahardhika/enhance-client-side-caching-in-trendnow-combine-okhttp-cache-and-room-database-1f47735924ef)
 - [Part 8 - Local News in TrendNow: Handle Multiple Sections in LazyColumn Jetpack Compose](https://medium.com/@danimahardhika/local-news-in-trendnow-handle-multiple-sections-in-lazycolumn-jetpack-compose-1247048f9d81)
+- [Part 9 - Optimize Pagination in TrendNow: Paging 3 with OkHttp Cache](https://medium.com/@danimahardhika/optimize-pagination-in-trendnow-paging-3-with-okhttp-cache-47c4ebaadc94)
 - more coming...
