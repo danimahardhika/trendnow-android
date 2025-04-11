@@ -40,15 +40,9 @@ class NewsPagingSource(
                 prevKey = if (page == 1) null else page - 1,
                 nextKey = if (result.data.isEmpty()) null else page + 1
             )
-            is ApiResult.Error -> {
-                val throwable = if (result.message.isNotBlank()) {
-                    // prioritize the error message first if its exist
-                    Exception(result.message)
-                } else {
-                    result.throwable ?: Exception("")
-                }
-                LoadResult.Error(throwable)
-            }
+            is ApiResult.Error -> LoadResult.Error(
+                result.throwable ?: Exception(result.message)
+            )
         }
     }
 }
