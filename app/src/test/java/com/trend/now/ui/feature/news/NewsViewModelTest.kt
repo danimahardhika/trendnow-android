@@ -3,19 +3,32 @@ package com.trend.now.ui.feature.news
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import app.cash.turbine.test
 import com.trend.now.TestCoroutineRule
+import com.trend.now.core.network.ApiResult
 import com.trend.now.data.repository.NewsRepository
 import com.trend.now.data.repository.UserPrefRepository
 import com.trend.now.data.repository.UserPrefRepositoryImpl
+import com.trend.now.util.news
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.unmockkAll
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class NewsViewModelTest {
 
     @get:Rule
@@ -43,6 +56,151 @@ class NewsViewModelTest {
             produceFile = { tempFolder.newFile("test.preferences_pb") }
         )
         userPrefRepository = UserPrefRepositoryImpl(dataStore)
+    }
+
+    @Ignore("Paging 3 migration")
+    @Test
+    fun `should call fetchTrendingNews when viewmodel is created`() = runTest {
+        // given
+        val news = listOf(news())
+        coEvery {
+            mockNewsRepository.fetchTrendingNews(any(), any(), any(), any())
+        } returns ApiResult.Success(news)
+
+        // when
+        val viewModel = newsViewModel
+        advanceUntilIdle() // wait the flow emits
+
+        // then
+        viewModel.trendingNewsUiState.test {
+            val selectedTopic = userPrefRepository.selectedTopic.first()
+            val language = userPrefRepository.newsLanguage.first()
+            val country = userPrefRepository.newsCountry.first()
+
+            coVerify(exactly = 1) {
+                mockNewsRepository.fetchTrendingNews(
+                    topic = selectedTopic,
+                    language = language,
+                    country = country
+                )
+            }
+
+            val uiState = awaitItem()
+            assertEquals(news, uiState.data)
+            assertEquals(true, uiState.success)
+            assertEquals(false, uiState.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Ignore("Paging 3 migration")
+    @Test
+    fun `should call fetchTrendingNews when on pull to refresh`() = runTest {
+        // given
+        val news = listOf(news())
+        coEvery {
+            mockNewsRepository.fetchTrendingNews(any(), any(), any(), any())
+        } returns ApiResult.Success(news)
+        val viewModel = newsViewModel
+        advanceUntilIdle() // wait the flow emits
+
+        // when
+        viewModel.onPullToRefresh()
+        advanceUntilIdle()
+
+        // then
+        viewModel.trendingNewsUiState.test {
+            val selectedTopic = userPrefRepository.selectedTopic.first()
+            val language = userPrefRepository.newsLanguage.first()
+            val country = userPrefRepository.newsCountry.first()
+
+            coVerify(exactly = 2) {
+                mockNewsRepository.fetchTrendingNews(
+                    topic = selectedTopic,
+                    language = language,
+                    country = country
+                )
+            }
+
+            val uiState = awaitItem()
+            assertEquals(news, uiState.data)
+            assertEquals(true, uiState.success)
+            assertEquals(false, uiState.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Ignore("Paging 3 migration")
+    @Test
+    fun `should call fetchTrendingNews when selected topic is changed`() = runTest {
+        // given
+        val topic = "sport"
+        val news = listOf(news())
+        coEvery {
+            mockNewsRepository.fetchTrendingNews(any(), any(), any(), any())
+        } returns ApiResult.Success(news)
+        val viewModel = newsViewModel
+
+        // when
+        userPrefRepository.setSelectedTopic(topic)
+        advanceUntilIdle() // wait the flow emits
+
+        // then
+        viewModel.trendingNewsUiState.test {
+            val language = userPrefRepository.newsLanguage.first()
+            val country = userPrefRepository.newsCountry.first()
+
+            coVerify(exactly = 1) {
+                mockNewsRepository.fetchTrendingNews(
+                    topic = topic,
+                    language = language,
+                    country = country
+                )
+            }
+
+            val uiState = awaitItem()
+            assertEquals(news, uiState.data)
+            assertEquals(true, uiState.success)
+            assertEquals(false, uiState.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Ignore("Paging 3 migration")
+    @Test
+    fun `should call fetchTrendingNews when news preference is changed`() = runTest {
+        // given
+        val language = "id"
+        val country = "id"
+        val news = listOf(news())
+        coEvery {
+            mockNewsRepository.fetchTrendingNews(any(), any(), any(), any())
+        } returns ApiResult.Success(news)
+        val viewModel = newsViewModel
+
+        // when
+        userPrefRepository.setNewsCountry(country)
+        userPrefRepository.setNewsLanguage(language)
+        advanceUntilIdle() // wait the flow emits
+
+        // then
+        viewModel.trendingNewsUiState.test {
+            val selectedTopic = userPrefRepository.selectedTopic.first()
+
+            coVerify(exactly = 1) {
+                mockNewsRepository.fetchTrendingNews(
+                    topic = selectedTopic,
+                    language = language,
+                    country = country
+                )
+            }
+
+            val uiState = awaitItem()
+            assertEquals(news, uiState.data)
+            assertEquals(true, uiState.success)
+            assertEquals(false, uiState.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     companion object {
